@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "456799805846",
+    "project_id": "posterpanda",
+    "storage_bucket": "posterpanda.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:456799805846:android:bc0277a65d6949143cfdb7",
+        "android_client_info": {
+          "package_name": "com.example.posterpanda"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMnslAC1AnHJ71YIqWOBlm4NWvAETKHYA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

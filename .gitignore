@@ -1,0 +1,9 @@
+/.dart_tool
+/analysis_options.yaml
+/build
+/ios
+/linux
+/macos
+/pubspec.lock
+/web
+/windows
