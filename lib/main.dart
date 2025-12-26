@@ -12,8 +12,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   final SharedPreferences pref = await SharedPreferences.getInstance();
-  final uname = pref.getString('name');
-  if (uname != null || uname != "") {
+  String? uname = pref.getString('name');
+  print(uname);
+  if (uname != null && uname != "") {
     runApp(loll());
   } else {
     runApp(Setup());

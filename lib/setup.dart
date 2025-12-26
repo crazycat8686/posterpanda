@@ -33,10 +33,16 @@ class _SetupState extends State<Setup> {
             child: Column(
               children: [
                 Text("Welcome pls do this"),
-                CircleAvatar(child: Image.network('images/wallps.jpg')),
+                CircleAvatar(backgroundImage: AssetImage('images/wallps.jpg')),
                 TextField(
                   controller: c1,
-                  onSubmitted: (value) => {set(value)},
+                  onSubmitted: (value) => {
+                    set(value),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => loll()),
+                    ),
+                  },
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: 'JOhn DIck',
