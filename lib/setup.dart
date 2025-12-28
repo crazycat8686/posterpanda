@@ -40,7 +40,9 @@ class _SetupState extends State<Setup> {
                     set(value),
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => loll()),
+                      MaterialPageRoute(
+                        builder: (context) => loll(c1.toString()),
+                      ),
                     ),
                   },
                   decoration: InputDecoration(

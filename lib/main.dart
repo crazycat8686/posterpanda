@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:js_interop';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -15,25 +16,29 @@ void main() async {
   String? uname = pref.getString('name');
   print(uname);
   if (uname != null && uname != "") {
-    runApp(loll());
+    runApp(loll(uname));
   } else {
     runApp(Setup());
   }
 }
 
 class loll extends StatefulWidget {
-  const loll({super.key});
+  final String uname;
+  const loll(this.uname, {super.key});
 
   @override
   State<loll> createState() => _lollState();
 }
 
 class _lollState extends State<loll> {
+  final FirebaseFirestore fire = FirebaseFirestore.instance;
   final ImagePicker picker = ImagePicker();
   File? image;
   String? pimg;
   bool isl = false;
   bool vis = false;
+
+  TextEditingController tags = TextEditingController();
   Future<void> pick() async {
     final XFile? resim = await picker.pickImage(source: ImageSource.gallery);
     if (resim != null) {
@@ -49,7 +54,7 @@ class _lollState extends State<loll> {
     }
   }
 
-  Future<void> imghand() async {
+  Future<void> imghand(String tags) async {
     isl = true;
     FormData form = FormData.fromMap({
       'key': "aedf7fa63f799e1f95a7b7a4e3a742b9",
@@ -61,7 +66,9 @@ class _lollState extends State<loll> {
       print(res.data);
       if (res.data['status'] == 200) {
         print("upload succesfull");
-        String ur = res.data['data']['display_url'];
+        String url = res.data['data']['display_url'];
+        stof(url, tags);
+
         setState(() {
           isl = false;
           image = null;
@@ -73,6 +80,16 @@ class _lollState extends State<loll> {
         isl = false;
       });
     }
+  }
+
+  Future<void> stof(String url, String tags) async {
+    await fire.collection('pandaimg').doc(widget.uname).set({
+      'tags': tags.split(' ').toList(),
+      'url': url,
+      'time': DateTime.now(),
+      'likes': 0,
+      'comments': [],
+    });
   }
 
   @override
@@ -87,45 +104,85 @@ class _lollState extends State<loll> {
           child: image != null
               ? Center(
                   child: isl
-                      ? Column(
-                          children: [
-                            CircularProgressIndicator(),
-                            Text("Please wai"),
-                            Image.file(image!),
-                          ],
-                        )
-                      : Column(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadiusGeometry.circular(20),
-                              child: Image.file(
-                                image!,
-                                height: 200,
-                                width: 200,
+                      ? SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              CircularProgressIndicator(),
+                              Text(
+                                "Please wait the image is beinguploaded to the server!!!",
                               ),
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: () => {
-                                setState(() {
-                                  image = null;
-                                }),
-                              },
-                              label: Text("Cancel"),
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: () => {
-                                setState(() {
-                                  imghand();
-                                }),
-                              },
-                              label: Text("upload"),
-                            ),
-                          ],
+                              Image.file(image!),
+                            ],
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          physics: BouncingScrollPhysics(),
+                          scrollDirection: Axis.vertical,
+                          child: Column(
+                            // crossAxisAlignment: CrossAxisAlignment.start
+                            mainAxisAlignment: MainAxisAlignment.start,
+
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.file(
+                                  image!,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.34,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.34,
+                                ),
+                              ),
+                              SizedBox(height: 20),
+
+                              TextField(
+                                controller: tags,
+                                onSubmitted: (value) => {tags.clear()},
+
+                                decoration: InputDecoration(
+                                  hint: Text("Dog, car etc"),
+
+                                  border: OutlineInputBorder(),
+                                  label: Text("Enter tags"),
+                                  fillColor: Colors.white,
+                                  focusColor: Colors.white,
+                                ),
+                              ),
+
+                              ElevatedButton.icon(
+                                onPressed: () => {
+                                  setState(() {
+                                    image = null;
+                                  }),
+                                },
+                                label: Text("Cancel"),
+                              ),
+                              tags.toString() != null
+                                  ? TextButton.icon(
+                                      onPressed: () => {
+                                        setState(() {
+                                          imghand(tags.toString());
+                                        }),
+                                      },
+                                      label: Text("upload"),
+                                    )
+                                  : Text(
+                                      "Pls enter the fucking tags then, or else no upload for u dumbass ${widget.uname}",
+                                    ),
+                            ],
+                          ),
                         ),
                 )
-              : ElevatedButton(
-                  onPressed: () => {pick(), print("pick1")},
-                  child: Text("Please upload"),
+              : Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => {pick(), print("pick1")},
+                      child: Text("Please upload"),
+                    ),
+                  ],
                 ),
         ),
       ),
