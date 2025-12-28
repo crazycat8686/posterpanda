@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:js_interop';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +66,7 @@ class _lollState extends State<loll> {
       if (res.data['status'] == 200) {
         print("upload succesfull");
         String url = res.data['data']['display_url'];
-        stof(url, tags);
+        await stof(url, tags);
 
         setState(() {
           isl = false;
