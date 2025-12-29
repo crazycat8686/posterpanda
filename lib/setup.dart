@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
+import 'display.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(Setup());
-}
 
 class Setup extends StatefulWidget {
   const Setup({super.key});
@@ -23,36 +18,30 @@ class _SetupState extends State<Setup> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "setup",
-      home: Scaffold(
-        body: Padding(
-          padding: EdgeInsetsGeometry.all(30),
-          child: Center(
-            child: Column(
-              children: [
-                Text("Welcome pls do this"),
-                CircleAvatar(backgroundImage: AssetImage('images/wallps.jpg')),
-                TextField(
-                  controller: c1,
-                  onSubmitted: (value) => {
-                    set(value),
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => loll(c1.toString()),
-                      ),
-                    ),
-                  },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'JOhn DIck',
-                    labelText: 'Enter yout name pls',
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsetsGeometry.all(30),
+        child: Center(
+          child: Column(
+            children: [
+              Text("Welcome pls do this"),
+              CircleAvatar(backgroundImage: AssetImage('images/wallps.jpg')),
+              TextField(
+                controller: c1,
+                onSubmitted: (value) => {
+                  set(value),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Display(c1.text)),
                   ),
+                },
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'JOhn DIck',
+                  labelText: 'Enter yout name pls',
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
