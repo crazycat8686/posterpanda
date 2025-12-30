@@ -24,7 +24,7 @@ class _DisplayState extends State<Display> {
 
   Future<void> checkuser() async {
     if (uname != null && uname != "") {
-      print("uname is passed not extracting $uname");
+      print("uname is passed.... Skipping func with $uname");
     } else {
       final SharedPreferences pref = await SharedPreferences.getInstance();
       String? usname = pref.getString('name');
@@ -39,9 +39,6 @@ class _DisplayState extends State<Display> {
           uname = usname;
           print(" user name is set to  $uname <><><><><><><><><><><>");
         });
-        print(
-          "initchecker passed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!===",
-        );
       } else {
         Navigator.pushReplacement(
           context,
@@ -55,17 +52,12 @@ class _DisplayState extends State<Display> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("data"),
-        backgroundColor: Colors.blue,
-
         actions: [
           IconButton(
             onPressed: () => {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => loll(uname: widget.uname),
-                ),
+                MaterialPageRoute(builder: (context) => loll(uname: uname)),
               ),
             },
             icon: Icon(Icons.account_circle_rounded),
