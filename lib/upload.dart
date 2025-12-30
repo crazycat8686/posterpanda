@@ -89,6 +89,7 @@ class _UploadState extends State<Upload> {
 
   Future<void> fbs(String url, String tags, String nameofimg) async {
     await Firebase.initializeApp();
+
     fire.collection('posterpanda-${widget.uname}').add({
       'url': url,
       'time': DateTime.now(),
