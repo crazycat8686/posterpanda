@@ -1,39 +1,39 @@
 import 'dart:io';
 import 'display.dart';
-
+import 'setup.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  final SharedPreferences pref = await SharedPreferences.getInstance();
-  String? uname = pref.getString('name');
-  print(uname);
-  if (uname != null && uname != "") {
-    runApp(Display(uname));
-  } else {
-    runApp(myapp(uname!));
-  }
+  runApp(myapp());
 }
 
-class myapp extends StatelessWidget {
-  final String uname;
-  const myapp(this.uname, {super.key});
+class myapp extends StatefulWidget {
+  const myapp({super.key});
 
   @override
+  State<myapp> createState() => _myappState();
+}
+
+class _myappState extends State<myapp> {
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: loll(uname), debugShowCheckedModeBanner: false);
+    return const MaterialApp(
+      title: "start",
+      home: Display(),
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
 
 class loll extends StatefulWidget {
-  final String uname;
-  const loll(this.uname, {super.key});
+  final String? uname;
+  const loll({super.key, this.uname});
 
   @override
   State<loll> createState() => _lollState();
@@ -46,7 +46,7 @@ class _lollState extends State<loll> {
   String? pimg;
   bool isl = false;
   bool vis = false;
-
+  @override
   TextEditingController tags = TextEditingController();
   Future<void> pick() async {
     final XFile? resim = await picker.pickImage(source: ImageSource.gallery);
@@ -104,6 +104,12 @@ class _lollState extends State<loll> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton.filled(
+          onPressed: () => {Navigator.pop(context)},
+          icon: Icon(Icons.door_back_door_sharp),
+        ),
+      ),
       backgroundColor: const Color.fromARGB(136, 249, 245, 245),
       body: Padding(
         padding: EdgeInsetsGeometry.all(16),
@@ -186,7 +192,7 @@ class _lollState extends State<loll> {
                 children: [
                   ElevatedButton(
                     onPressed: () => {pick(), print("pick1")},
-                    child: Text("Please upload"),
+                    child: Text("Please upload "),
                   ),
                 ],
               ),
