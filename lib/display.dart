@@ -23,29 +23,31 @@ class _DisplayState extends State<Display> {
   String? uname;
 
   Future<void> checkuser() async {
-    final SharedPreferences pref = await SharedPreferences.getInstance();
-    String? uname = pref.getString('name');
-    setState(() {
-      this.uname = uname;
-    });
-    print(uname);
     if (uname != null && uname != "") {
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (_) => Setup()),
-      // );
-      print(uname);
-      print(
-        "initchecker passed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!===",
-      );
-      setState(() {
-        this.uname = uname;
-      });
+      print("uname is passed not extracting $uname");
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => Setup()),
-      );
+      final SharedPreferences pref = await SharedPreferences.getInstance();
+      String? usname = pref.getString('name');
+      print("extracted user name is $usname");
+
+      if (usname != null && usname != "") {
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(builder: (_) => Setup()),
+        // );
+        setState(() {
+          uname = usname;
+          print(" user name is set to  $uname <><><><><><><><><><><>");
+        });
+        print(
+          "initchecker passed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!===",
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => Setup()),
+        );
+      }
     }
   }
 
@@ -70,7 +72,7 @@ class _DisplayState extends State<Display> {
           ),
         ],
       ),
-      body: Center(child: Text("Hello ${widget.uname}")),
+      body: Center(child: Text("Hello $uname")),
     );
   }
 }

@@ -110,7 +110,7 @@ class _lollState extends State<loll> {
           icon: Icon(Icons.door_back_door_sharp),
         ),
       ),
-      backgroundColor: const Color.fromARGB(136, 249, 245, 245),
+      // backgroundColor: const Color.fromARGB(136, 249, 245, 245),
       body: Padding(
         padding: EdgeInsetsGeometry.all(16),
         child: image != null
