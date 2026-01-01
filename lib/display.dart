@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'setup.dart';
@@ -65,50 +67,117 @@ class _DisplayState extends State<Display> {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('gposts')
-            .orderBy('time', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text("No posts yet"));
-          }
-
-          final docs = snapshot.data!.docs;
-
-          return ListView.builder(
-            padding: EdgeInsets.all(30),
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadiusGeometry.circular(20),
-                    child: Image.network(
-                      data['url'],
-                      width: MediaQuery.of(context).size.width * 0.34,
-                      height: MediaQuery.of(context).size.height * 0.34,
-                    ),
-                  ),
-                  Text(
-                    data['name'],
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  Text("Posted by: ${data['owner']}"),
-                ],
-              );
-            },
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.all(17.0),
+        child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('gposts')
+              .orderBy('time', descending: true)
+              .snapshots(),
+          builder: (context, snap) {
+            if (snap.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+            if (!snap.hasData || snap.data!.docs.isEmpty) {
+              return Center(child: Text("No posts yet $uname"));
+            }
+            //write null cases later
+            final res = snap.data!.docs;
+            return Expanded(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 20,
+                  // childAspectRatio: 0.5,
+                ),
+                itemCount: res.length,
+                itemBuilder: (context, index) {
+                  final data = res[index].data() as Map<String, dynamic>;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadiusGeometry.circular(20),
+                        child: Image(
+                          image: NetworkImage(data['url']),
+                          height: MediaQuery.of(context).size.height * 0.4,
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ),
+
+      // body: StreamBuilder<QuerySnapshot>(
+      //   stream: FirebaseFirestore.instance
+      //       .collection('gposts')
+      //       .orderBy('time', descending: true)
+      //       .snapshots(),
+      //   builder: (context, snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.waiting) {
+      //       return Center(child: CircularProgressIndicator());
+      //     }
+
+      //     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      //       return Center(child: Text("No posts yet"));
+      //     }
+
+      //     final docs = snapshot.data!.docs;
+
+      //     return ListView.builder(
+      //       padding: EdgeInsets.all(30),
+      //       itemCount: docs.length,
+      //       itemBuilder: (context, index) {
+      //         final data = docs[index].data() as Map<String, dynamic>;
+
+      //         return Column(
+      //           crossAxisAlignment: CrossAxisAlignment.start,
+      //           children: [
+      //             Container(
+      //               padding: EdgeInsets.all(7),
+      //               decoration: BoxDecoration(
+      //                 color: Colors.transparent,
+      //                 borderRadius: BorderRadius.circular(9),
+      //                 boxShadow: [
+      //                   BoxShadow(
+      //                     offset: Offset(1, 2),
+      //                     color: Colors.pink[200]!,
+      //                   ),
+      //                 ],
+      //               ),
+      //               child: ClipRRect(
+      //                 borderRadius: BorderRadiusGeometry.circular(20),
+      //                 child: Image.network(
+      //                   data['url'],
+      //                   width: MediaQuery.of(context).size.width * 0.34,
+      //                   height: MediaQuery.of(context).size.height * 0.34,
+      //                 ),
+      //               ),
+      //             ),
+      //             Text(
+      //               data['name'],
+      //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      //             ),
+      //             Row(
+      //               children: [
+      //                 Icon(Icons.favorite_border, color: Colors.red),
+      //                 Text(data['likes'].toString()),
+      //               ],
+      //             ),
+      //           ],
+      //         );
+      //       },
+      //     );
+      //   },
+      // ),
     );
   }
 }
