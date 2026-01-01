@@ -49,7 +49,7 @@ class _SetupState extends State<Setup> {
                   }),
                 },
                 onSubmitted: (value) => {
-                  if (c1.text != null && c1.text != "")
+                  if (c1.text != "")
                     {
                       set(value),
                       Navigator.push(

@@ -2,9 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Upload extends StatefulWidget {
@@ -72,7 +70,7 @@ class _UploadState extends State<Upload> {
       if (res.data['status'] == 200) {
         print("upload succesfull");
         String url = res.data['data']['display_url'];
-        await fbs(url, tags, name);
+        await fbs(url, tags, name, isowned);
 
         setState(() {
           isl = false;
@@ -87,18 +85,30 @@ class _UploadState extends State<Upload> {
     }
   }
 
-  Future<void> fbs(String url, String tags, String nameofimg) async {
-    await Firebase.initializeApp();
+  Future<void> fbs(String url, String tags, String nameofimg, bool iso) async {
+    // await Firebase.initializeApp();
 
-    fire.collection('posterpanda-${widget.uname}').add({
+    fire.collection('posterpanda').doc(widget.uname).collection('posts').add({
       'url': url,
       'time': DateTime.now(),
       'likes': 0,
       'comments': [],
       'favedby': 0,
       'name': nameofimg,
+      'picbyuser': iso,
+    });
+    fire.collection('gposts').add({
+      'upby': widget.uname,
+      'url': url,
+      'time': DateTime.now(),
+      'likes': 0,
+      'comments': [],
+      'favedby': 0,
+      'name': nameofimg,
+      'picbyuser': iso,
     });
     print("upload successfull to firestore");
+    Navigator.pop(context);
   }
 
   @override
@@ -106,31 +116,32 @@ class _UploadState extends State<Upload> {
     return Scaffold(
       body: img != null
           ? Padding(
-              padding: EdgeInsetsGeometry.all(13),
+              padding: EdgeInsetsGeometry.all(15),
               child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 physics: BouncingScrollPhysics(),
                 child: Column(
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            offset: Offset(10, 10),
-                            color: const Color.fromARGB(178, 230, 110, 54),
-                          ),
-                        ],
-                        image: DecorationImage(image: FileImage(img!)),
-                      ),
-                    ),
+                    SizedBox(height: 20),
+
                     Text(
                       "Fill in the below details to ensure proper uplaod",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 34,
+                        fontSize: 30,
                       ),
                     ),
+                    SizedBox(height: 20),
+
+                    ClipRRect(
+                      borderRadius: BorderRadiusGeometry.circular(20),
+                      child: Image(
+                        image: FileImage(img!),
+                        height: MediaQuery.of(context).size.height * 0.44,
+                        width: MediaQuery.of(context).size.width * 0.44,
+                      ),
+                    ),
+                    SizedBox(height: 20),
 
                     TextField(
                       controller: tags,
@@ -154,27 +165,19 @@ class _UploadState extends State<Upload> {
                     ),
                     Checkbox(
                       value: isowned,
-                      onChanged: (isowned) => {
+                      onChanged: (_) => {
                         setState(() {
-                          isowned = !isowned!;
+                          isowned = !isowned;
+                          print("chechbox clicked");
                         }),
                       },
                       semanticLabel: "Did u take this picture?",
                     ),
-                    tags.text != null &&
-                            name.text != null &&
-                            tags.text != "" &&
-                            name.text != null
+                    SizedBox(height: 20),
+
+                    tags.text != "" && name.text != ""
                         ? ElevatedButton(
-                            onPressed: () => {
-                              uptodio(tags.text, name.text),
-                              showDialog(
-                                context: context,
-                                builder: (context) =>
-                                    AlertDialog(title: Text("please wait")),
-                              ),
-                              Navigator.pop(context),
-                            },
+                            onPressed: () => {uptodio(tags.text, name.text)},
                             child: Text("Upload"),
                           )
                         : Text(

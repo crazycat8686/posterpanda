@@ -1,17 +1,13 @@
-import 'dart:io';
 import 'package:posterpanda/upload.dart';
 
 import 'display.dart';
 import 'setup.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
   runApp(myapp());
 }
 
@@ -43,8 +39,6 @@ class loll extends StatefulWidget {
 
 class _lollState extends State<loll> {
   @override
-  TextEditingController tags = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,6 +60,19 @@ class _lollState extends State<loll> {
               ),
               child: Text("upload"),
             ),
+            // ElevatedButton(
+            //   onPressed: () => Navigator.pushReplacement(
+            //     context,
+            //     MaterialPageRoute(builder: (_) => Setup()),
+            //   ),
+            //   child: Row(
+            //     crossAxisAlignment: CrossAxisAlignment.stretch,
+            //     children: [
+            //       Icon(Icons.settings),
+            //       Text("Change name/ reset app"),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
         //   child: image != null
