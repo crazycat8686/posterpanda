@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'upload.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'setup.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +18,7 @@ class Display extends StatefulWidget {
 }
 
 class _DisplayState extends State<Display> {
+  final FirebaseFirestore fire = FirebaseFirestore.instance;
   void initState() {
     WidgetsFlutterBinding.ensureInitialized();
     super.initState();
@@ -52,6 +53,18 @@ class _DisplayState extends State<Display> {
       }
     }
   }
+
+  Future<void> like(String id) async {
+    await fire.collection('gposts').doc(id).update({
+      'likes': FieldValue.increment(1),
+    });
+  }
+
+  // Future<void> likedec(String id) async {
+  //   await fire.collection('gposts').doc(id).update({
+  //     'likes': FieldValue.increment(value),
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -94,23 +107,53 @@ class _DisplayState extends State<Display> {
               itemCount: data.length,
               itemBuilder: (context, index) {
                 var element = data[index].data() as Map<String, dynamic>;
-                // return ClipRRect(
-                //   borderRadius: BorderRadiusGeometry.circular(20),
-                //   child: Image(
-                //     image: NetworkImage(element['url']),
-                //     height: MediaQuery.of(context).size.height * 0.3,
-                //     width: MediaQuery.of(context).size.width * 0.3,
-                //   ),
-                // );
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blueGrey,
-                    borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                      image: NetworkImage(element['url']),
-                      fit: BoxFit.cover,
+                bool liked = false;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => {print(data[index].reference.id)},
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.blueGrey,
+                            borderRadius: BorderRadius.circular(12),
+                            image: DecorationImage(
+                              image: NetworkImage(element['url']),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    Row(
+                      children: [
+                        liked == false
+                            ? IconButton.filled(
+                                onPressed: () async {
+                                  print(liked);
+
+                                  await fire
+                                      .collection('gposts')
+                                      .doc('${data[index].reference.id}')
+                                      .update({
+                                        'likes': FieldValue.increment(1),
+                                      });
+                                  setState(() {
+                                    liked = true;
+                                  });
+                                  print(liked);
+                                },
+                                icon: Icon(
+                                  Icons.favorite_border,
+                                  color: Colors.pink,
+                                ),
+                              )
+                            : Icon(Icons.favorite),
+                        Text(element['likes'].toString()),
+                      ],
+                    ),
+                  ],
                 );
               },
             );

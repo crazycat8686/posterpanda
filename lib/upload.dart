@@ -88,15 +88,19 @@ class _UploadState extends State<Upload> {
   Future<void> fbs(String url, String tags, String nameofimg, bool iso) async {
     // await Firebase.initializeApp();
 
-    fire.collection('posterpanda').doc(widget.uname).collection('posts').add({
-      'url': url,
-      'time': DateTime.now(),
-      'likes': 0,
-      'comments': [],
-      'favedby': 0,
-      'name': nameofimg,
-      'picbyuser': iso,
-    });
+    final docref = await fire
+        .collection('posterpanda')
+        .doc(widget.uname)
+        .collection('posts')
+        .add({
+          'url': url,
+          'time': DateTime.now(),
+          'likes': 0,
+          'comments': [],
+          'favedby': 0,
+          'name': nameofimg,
+          'picbyuser': iso,
+        });
     fire.collection('gposts').add({
       'upby': widget.uname,
       'url': url,
@@ -106,9 +110,11 @@ class _UploadState extends State<Upload> {
       'favedby': 0,
       'name': nameofimg,
       'picbyuser': iso,
+      'ref': docref.id,
     });
     print("upload successfull to firestore");
     Navigator.pop(context);
+    print(docref.id);
   }
 
   @override
