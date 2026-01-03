@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'setup.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -68,53 +70,99 @@ class _DisplayState extends State<Display> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(17.0),
+        padding: const EdgeInsets.all(14.0),
         child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('gposts')
-              .orderBy('time', descending: true)
+              .orderBy('time')
               .snapshots(),
           builder: (context, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
             }
-            if (!snap.hasData || snap.data!.docs.isEmpty) {
-              return Center(child: Text("No posts yet $uname"));
+            if (!snap.hasData) {
+              return CircularProgressIndicator();
             }
-            //write null cases later
-            final res = snap.data!.docs;
-            return Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 20,
-                  // childAspectRatio: 0.5,
-                ),
-                itemCount: res.length,
-                itemBuilder: (context, index) {
-                  final data = res[index].data() as Map<String, dynamic>;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadiusGeometry.circular(20),
-                        child: Image(
-                          image: NetworkImage(data['url']),
-                          height: MediaQuery.of(context).size.height * 0.4,
-                          width: MediaQuery.of(context).size.width * 0.4,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                    ],
-                  );
-                },
+            var data = snap.data!.docs;
+            return GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 10,
+                childAspectRatio: 0.6,
               ),
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                var element = data[index].data() as Map<String, dynamic>;
+                // return ClipRRect(
+                //   borderRadius: BorderRadiusGeometry.circular(20),
+                //   child: Image(
+                //     image: NetworkImage(element['url']),
+                //     height: MediaQuery.of(context).size.height * 0.3,
+                //     width: MediaQuery.of(context).size.width * 0.3,
+                //   ),
+                // );
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey,
+                    borderRadius: BorderRadius.circular(12),
+                    image: DecorationImage(
+                      image: NetworkImage(element['url']),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),
       ),
+      // body: Padding(
+      //   padding: const EdgeInsets.all(17.0),
+      //   child: StreamBuilder<QuerySnapshot>(
+      //     stream: FirebaseFirestore.instance
+      //         .collection('gposts')
+      //         .orderBy('time', descending: true)
+      //         .snapshots(),
+      //     builder: (context, snap) {
+      //       if (snap.connectionState == ConnectionState.waiting) {
+      //         return CircularProgressIndicator();
+      //       }
+      //       if (!snap.hasData || snap.data!.docs.isEmpty) {
+      //         return Center(child: Text("No posts yet $uname"));
+      //       }
+      //       //write null cases later
+      //       final res = snap.data!.docs;
+      // return GridView.builder(
+      //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      //     crossAxisCount: 2,
+      //     crossAxisSpacing: 12,
+      //     mainAxisSpacing: 20,
+      //     // childAspectRatio: 0.5,
+      //   ),
+      //   itemCount: res.length,
+      //   itemBuilder: (context, index) {
+      //     final data = res[index].data() as Map<String, dynamic>;
+      //     return Column(
+      //       crossAxisAlignment: CrossAxisAlignment.start,
+      //       children: [
+      //         ClipRRect(
+      //           borderRadius: BorderRadiusGeometry.circular(20),
+      //           child: Image(
+      //             image: NetworkImage(data['url']),
+      //             height: MediaQuery.of(context).size.height * 0.4,
+      //             width: MediaQuery.of(context).size.width * 0.4,
+      //             fit: BoxFit.cover,
+      //           ),
+      //         ),
+      //         SizedBox(height: 10),
+      //       ],
+      //     );
+      //   },
+      // );
+      //     },
+      //   ),
+      // ),
 
       // body: StreamBuilder<QuerySnapshot>(
       //   stream: FirebaseFirestore.instance
