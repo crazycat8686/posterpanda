@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'dart:io';
-import 'upload.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'setup.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wallpaper_manager_plus/wallpaper_manager_plus.dart';
+import 'dart:io';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class Display extends StatefulWidget {
   final String? uname;
@@ -64,11 +63,20 @@ class _DisplayState extends State<Display> {
   //   await fire.collection('gposts').doc(id).update({
   //     'likes': FieldValue.increment(value),
   //   });
-  // }
+  //   // }
+
+  Future<void> wallp(String url, String name) async {
+    File img = await DefaultCacheManager().getSingleFile(url);
+    await WallpaperManagerPlus().setWallpaper(
+      img,
+      WallpaperManagerPlus.homeScreen,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // bottomNavigationBar: BottomNavigationBar(items: ),
       appBar: AppBar(
         actions: [
           IconButton(
@@ -82,82 +90,218 @@ class _DisplayState extends State<Display> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(14.0),
-        child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('gposts')
-              .orderBy('time')
-              .snapshots(),
-          builder: (context, snap) {
-            if (snap.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            }
-            if (!snap.hasData) {
-              return CircularProgressIndicator();
-            }
-            var data = snap.data!.docs;
-            return GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.6,
-              ),
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                var element = data[index].data() as Map<String, dynamic>;
-                bool liked = false;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => {print(data[index].reference.id)},
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.blueGrey,
-                            borderRadius: BorderRadius.circular(12),
-                            image: DecorationImage(
-                              image: NetworkImage(element['url']),
-                              fit: BoxFit.cover,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(14.0),
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('gposts')
+                .orderBy('time')
+                .snapshots(),
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              }
+              if (!snap.hasData) {
+                return CircularProgressIndicator();
+              }
+              var data = snap.data!.docs;
+              return GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 0.6,
+                ),
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  var element = data[index].data() as Map<String, dynamic>;
+                  bool liked = false;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => {
+                            print(data[index].reference.id),
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) =>
+                            //         MyWidget(data[index].reference.id),
+                            //   ),
+                            // ),
+                            showModalBottomSheet(
+                              isScrollControlled: true,
+                              // scrollControlDisabledMaxHeightRatio: ,
+                              showDragHandle: true,
+                              context: context,
+                              builder: (context) {
+                                return DraggableScrollableSheet(
+                                  expand: false,
+                                  minChildSize: 0.4,
+                                  maxChildSize: 0.85,
+                                  initialChildSize: 0.6,
+                                  builder: (context, ScrollController) {
+                                    return SingleChildScrollView(
+                                      controller: ScrollController,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(5.0),
+                                            child: Row(
+                                              children: [
+                                                SizedBox(width: 19),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      element['name'],
+                                                      style: TextStyle(
+                                                        fontFamily: 'Lexend',
+                                                        fontSize: 38,
+                                                        fontWeight:
+                                                            FontWeight.w900,
+                                                      ),
+                                                    ),
+                                                    // SizedBox(height: 10),
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          'by',
+                                                          style: TextStyle(
+                                                            fontFamily:
+                                                                'Lexend',
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                          ),
+                                                        ),
+                                                        SizedBox(width: 4),
+                                                        Text(
+                                                          element['upby'],
+                                                          style: TextStyle(
+                                                            fontFamily:
+                                                                'Lexend',
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+
+                                          Center(
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadiusGeometry.circular(
+                                                    13,
+                                                  ),
+                                              child: Image(
+                                                image: NetworkImage(
+                                                  element['url'],
+                                                ),
+                                                fit: BoxFit.cover,
+                                                height:
+                                                    MediaQuery.of(
+                                                      context,
+                                                    ).size.height *
+                                                    0.6,
+                                                width:
+                                                    MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.9,
+                                              ),
+                                            ),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () => {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadiusGeometry.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  content: Text(
+                                                    "Okay chill ${element['name']}",
+                                                  ),
+                                                ),
+                                              ),
+                                              wallp(
+                                                element['url'],
+                                                element['name'],
+                                              ),
+                                            },
+                                            child: Text("Set as Wallpaper"),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blueGrey,
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                image: NetworkImage(element['url']),
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Row(
-                      children: [
-                        liked == false
-                            ? IconButton.filled(
-                                onPressed: () async {
-                                  print(liked);
+                      Row(
+                        children: [
+                          liked == false
+                              ? IconButton.filled(
+                                  onPressed: () async {
+                                    print(liked);
 
-                                  await fire
-                                      .collection('gposts')
-                                      .doc('${data[index].reference.id}')
-                                      .update({
-                                        'likes': FieldValue.increment(1),
-                                      });
-                                  setState(() {
-                                    liked = true;
-                                  });
-                                  print(liked);
-                                },
-                                icon: Icon(
-                                  Icons.favorite_border,
-                                  color: Colors.pink,
-                                ),
-                              )
-                            : Icon(Icons.favorite),
-                        Text(element['likes'].toString()),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            );
-          },
+                                    await fire
+                                        .collection('gposts')
+                                        .doc('${data[index].reference.id}')
+                                        .update({
+                                          'likes': FieldValue.increment(1),
+                                        });
+                                    setState(() {
+                                      liked = true;
+                                    });
+                                    print(liked);
+                                  },
+                                  icon: Icon(
+                                    Icons.favorite_border,
+                                    color: Colors.pink,
+                                  ),
+                                )
+                              : Icon(Icons.favorite),
+                          Text(element['likes'].toString()),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
       // body: Padding(

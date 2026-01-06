@@ -1,7 +1,5 @@
 import 'package:posterpanda/upload.dart';
-
 import 'display.dart';
-import 'setup.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
