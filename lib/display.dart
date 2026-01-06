@@ -26,7 +26,9 @@ class _DisplayState extends State<Display> {
   }
 
   String? uname;
+  bool liked = false;
 
+  bool wall = false;
   Future<void> checkuser() async {
     if (uname != null && uname != "") {
       print("uname is passed.... Skipping func with $uname");
@@ -66,18 +68,61 @@ class _DisplayState extends State<Display> {
   //   // }
 
   Future<void> wallp(String url, String name) async {
+    wall = true;
     File img = await DefaultCacheManager().getSingleFile(url);
-    await WallpaperManagerPlus().setWallpaper(
-      img,
-      WallpaperManagerPlus.homeScreen,
-    );
+
+    try {
+      final res = await WallpaperManagerPlus().setWallpaper(
+        img,
+        WallpaperManagerPlus.homeScreen,
+      );
+      print("res is $res");
+      if (res == "Wallpaper set successfully") {
+        setState(() {
+          wall = false;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> wallpl(String url, String name) async {
+    wall = true;
+    File img = await DefaultCacheManager().getSingleFile(url);
+
+    try {
+      final res = await WallpaperManagerPlus().setWallpaper(
+        img,
+        WallpaperManagerPlus.lockScreen,
+      );
+      print("res is $res");
+      if (res == "Wallpaper set successfully") {
+        setState(() {
+          wall = false;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // backgroundColor: Colors.white,
+
       // bottomNavigationBar: BottomNavigationBar(items: ),
       appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          "Poster.panda",
+          style: TextStyle(
+            fontFamily: 'Bau',
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
             onPressed: () => {
@@ -102,10 +147,25 @@ class _DisplayState extends State<Display> {
               if (snap.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
               }
-              if (!snap.hasData) {
-                return CircularProgressIndicator();
+              if (!snap.hasData || snap.data == null) {
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.amber,
+                    backgroundColor: Colors.green,
+                  ),
+                );
               }
               var data = snap.data!.docs;
+              if (data.isEmpty) {
+                return Center(
+                  child: Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      Text("No data!! why dont u upload ${uname}???"),
+                    ],
+                  ),
+                );
+              }
               return GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -116,7 +176,6 @@ class _DisplayState extends State<Display> {
                 itemCount: data.length,
                 itemBuilder: (context, index) {
                   var element = data[index].data() as Map<String, dynamic>;
-                  bool liked = false;
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -132,6 +191,12 @@ class _DisplayState extends State<Display> {
                             //   ),
                             // ),
                             showModalBottomSheet(
+                              // backgroundColor: const Color.fromARGB(
+                              //   255,
+                              //   255,
+                              //   255,
+                              //   255,
+                              // ),
                               isScrollControlled: true,
                               // scrollControlDisabledMaxHeightRatio: ,
                               showDragHandle: true,
@@ -145,112 +210,172 @@ class _DisplayState extends State<Display> {
                                   builder: (context, ScrollController) {
                                     return SingleChildScrollView(
                                       controller: ScrollController,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.all(5.0),
-                                            child: Row(
+                                      child: wall
+                                          ? CircularProgressIndicator()
+                                          : Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                                SizedBox(width: 19),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      element['name'],
-                                                      style: TextStyle(
-                                                        fontFamily: 'Lexend',
-                                                        fontSize: 38,
-                                                        fontWeight:
-                                                            FontWeight.w900,
+                                                Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    5.0,
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      SizedBox(width: 19),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            element['name'],
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  'Lexend',
+                                                              fontSize: 38,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900,
+                                                            ),
+                                                          ),
+                                                          // SizedBox(height: 10),
+                                                          Row(
+                                                            children: [
+                                                              Text(
+                                                                'by',
+                                                                style: TextStyle(
+                                                                  fontFamily:
+                                                                      'Lexend',
+                                                                  fontSize: 10,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w400,
+                                                                ),
+                                                              ),
+                                                              SizedBox(
+                                                                width: 4,
+                                                              ),
+                                                              Text(
+                                                                element['upby'],
+                                                                style: TextStyle(
+                                                                  fontFamily:
+                                                                      'Lexend',
+                                                                  fontSize: 14,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
                                                       ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                                Center(
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadiusGeometry.circular(
+                                                          13,
+                                                        ),
+                                                    child: Image(
+                                                      image: NetworkImage(
+                                                        element['url'],
+                                                      ),
+                                                      fit: BoxFit.cover,
+                                                      height:
+                                                          MediaQuery.of(
+                                                            context,
+                                                          ).size.height *
+                                                          0.6,
+                                                      width:
+                                                          MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.9,
                                                     ),
-                                                    // SizedBox(height: 10),
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          'by',
+                                                  ),
+                                                ),
+                                                SizedBox(height: 10),
+                                                Center(
+                                                  child: Column(
+                                                    children: [
+                                                      ElevatedButton(
+                                                        onPressed: () => {
+                                                          ScaffoldMessenger.of(
+                                                            context,
+                                                          ).showSnackBar(
+                                                            SnackBar(
+                                                              behavior:
+                                                                  SnackBarBehavior
+                                                                      .floating,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadiusGeometry.circular(
+                                                                      12,
+                                                                    ),
+                                                              ),
+                                                              content: Text(
+                                                                "Okay chill ${element['name']} is set as wallpaper",
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          wallp(
+                                                            element['url'],
+                                                            element['name'],
+                                                          ),
+                                                        },
+                                                        child: Text(
+                                                          "Set as Home Wallpaper",
                                                           style: TextStyle(
                                                             fontFamily:
                                                                 'Lexend',
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight.w400,
+                                                            color: Colors.black,
                                                           ),
                                                         ),
-                                                        SizedBox(width: 4),
-                                                        Text(
-                                                          element['upby'],
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: () => {
+                                                          ScaffoldMessenger.of(
+                                                            context,
+                                                          ).showSnackBar(
+                                                            SnackBar(
+                                                              behavior:
+                                                                  SnackBarBehavior
+                                                                      .floating,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadiusGeometry.circular(
+                                                                      12,
+                                                                    ),
+                                                              ),
+                                                              content: Text(
+                                                                "Okay chill ${element['name']} is set as wallpaper for lock screen",
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          wallpl(
+                                                            element['url'],
+                                                            element['name'],
+                                                          ),
+                                                        },
+                                                        child: Text(
+                                                          "Set as Lock Screen Wallpaper",
                                                           style: TextStyle(
                                                             fontFamily:
                                                                 'Lexend',
-                                                            fontSize: 13,
-                                                            fontWeight:
-                                                                FontWeight.w600,
+                                                            color: Colors.black,
                                                           ),
                                                         ),
-                                                      ],
-                                                    ),
-                                                  ],
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ],
                                             ),
-                                          ),
-
-                                          Center(
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadiusGeometry.circular(
-                                                    13,
-                                                  ),
-                                              child: Image(
-                                                image: NetworkImage(
-                                                  element['url'],
-                                                ),
-                                                fit: BoxFit.cover,
-                                                height:
-                                                    MediaQuery.of(
-                                                      context,
-                                                    ).size.height *
-                                                    0.6,
-                                                width:
-                                                    MediaQuery.of(
-                                                      context,
-                                                    ).size.width *
-                                                    0.9,
-                                              ),
-                                            ),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () => {
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  behavior:
-                                                      SnackBarBehavior.floating,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadiusGeometry.circular(
-                                                          12,
-                                                        ),
-                                                  ),
-                                                  content: Text(
-                                                    "Okay chill ${element['name']}",
-                                                  ),
-                                                ),
-                                              ),
-                                              wallp(
-                                                element['url'],
-                                                element['name'],
-                                              ),
-                                            },
-                                            child: Text("Set as Wallpaper"),
-                                          ),
-                                        ],
-                                      ),
                                     );
                                   },
                                 );
@@ -269,31 +394,59 @@ class _DisplayState extends State<Display> {
                           ),
                         ),
                       ),
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          liked == false
-                              ? IconButton.filled(
-                                  onPressed: () async {
-                                    print(liked);
+                          Text(
+                            ' ${element['name']}',
+                            style: TextStyle(
+                              fontFamily: 'Lexend',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              !liked
+                                  ? IconButton(
+                                      onPressed: () async {
+                                        print(liked);
 
-                                    await fire
-                                        .collection('gposts')
-                                        .doc('${data[index].reference.id}')
-                                        .update({
-                                          'likes': FieldValue.increment(1),
+                                        await fire
+                                            .collection('gposts')
+                                            .doc('${data[index].reference.id}')
+                                            .update({
+                                              'likes': FieldValue.increment(1),
+                                            });
+                                        setState(() {
+                                          liked = true;
                                         });
-                                    setState(() {
-                                      liked = true;
-                                    });
-                                    print(liked);
-                                  },
-                                  icon: Icon(
-                                    Icons.favorite_border,
-                                    color: Colors.pink,
-                                  ),
-                                )
-                              : Icon(Icons.favorite),
-                          Text(element['likes'].toString()),
+                                        print(liked);
+                                      },
+                                      icon: Icon(
+                                        Icons.favorite,
+                                        color: Colors.pink[200],
+                                      ),
+                                    )
+                                  : IconButton(
+                                      onPressed: () async {
+                                        print(liked);
+
+                                        await fire
+                                            .collection('gposts')
+                                            .doc('${data[index].reference.id}')
+                                            .update({
+                                              'likes': FieldValue.increment(-1),
+                                            });
+                                        setState(() {
+                                          liked = false;
+                                        });
+                                        print(liked);
+                                      },
+                                      icon: Icon(Icons.favorite_border),
+                                    ),
+                              Text(element['likes'].toString()),
+                            ],
+                          ),
                         ],
                       ),
                     ],
@@ -304,115 +457,6 @@ class _DisplayState extends State<Display> {
           ),
         ),
       ),
-      // body: Padding(
-      //   padding: const EdgeInsets.all(17.0),
-      //   child: StreamBuilder<QuerySnapshot>(
-      //     stream: FirebaseFirestore.instance
-      //         .collection('gposts')
-      //         .orderBy('time', descending: true)
-      //         .snapshots(),
-      //     builder: (context, snap) {
-      //       if (snap.connectionState == ConnectionState.waiting) {
-      //         return CircularProgressIndicator();
-      //       }
-      //       if (!snap.hasData || snap.data!.docs.isEmpty) {
-      //         return Center(child: Text("No posts yet $uname"));
-      //       }
-      //       //write null cases later
-      //       final res = snap.data!.docs;
-      // return GridView.builder(
-      //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-      //     crossAxisCount: 2,
-      //     crossAxisSpacing: 12,
-      //     mainAxisSpacing: 20,
-      //     // childAspectRatio: 0.5,
-      //   ),
-      //   itemCount: res.length,
-      //   itemBuilder: (context, index) {
-      //     final data = res[index].data() as Map<String, dynamic>;
-      //     return Column(
-      //       crossAxisAlignment: CrossAxisAlignment.start,
-      //       children: [
-      //         ClipRRect(
-      //           borderRadius: BorderRadiusGeometry.circular(20),
-      //           child: Image(
-      //             image: NetworkImage(data['url']),
-      //             height: MediaQuery.of(context).size.height * 0.4,
-      //             width: MediaQuery.of(context).size.width * 0.4,
-      //             fit: BoxFit.cover,
-      //           ),
-      //         ),
-      //         SizedBox(height: 10),
-      //       ],
-      //     );
-      //   },
-      // );
-      //     },
-      //   ),
-      // ),
-
-      // body: StreamBuilder<QuerySnapshot>(
-      //   stream: FirebaseFirestore.instance
-      //       .collection('gposts')
-      //       .orderBy('time', descending: true)
-      //       .snapshots(),
-      //   builder: (context, snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.waiting) {
-      //       return Center(child: CircularProgressIndicator());
-      //     }
-
-      //     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-      //       return Center(child: Text("No posts yet"));
-      //     }
-
-      //     final docs = snapshot.data!.docs;
-
-      //     return ListView.builder(
-      //       padding: EdgeInsets.all(30),
-      //       itemCount: docs.length,
-      //       itemBuilder: (context, index) {
-      //         final data = docs[index].data() as Map<String, dynamic>;
-
-      //         return Column(
-      //           crossAxisAlignment: CrossAxisAlignment.start,
-      //           children: [
-      //             Container(
-      //               padding: EdgeInsets.all(7),
-      //               decoration: BoxDecoration(
-      //                 color: Colors.transparent,
-      //                 borderRadius: BorderRadius.circular(9),
-      //                 boxShadow: [
-      //                   BoxShadow(
-      //                     offset: Offset(1, 2),
-      //                     color: Colors.pink[200]!,
-      //                   ),
-      //                 ],
-      //               ),
-      //               child: ClipRRect(
-      //                 borderRadius: BorderRadiusGeometry.circular(20),
-      //                 child: Image.network(
-      //                   data['url'],
-      //                   width: MediaQuery.of(context).size.width * 0.34,
-      //                   height: MediaQuery.of(context).size.height * 0.34,
-      //                 ),
-      //               ),
-      //             ),
-      //             Text(
-      //               data['name'],
-      //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      //             ),
-      //             Row(
-      //               children: [
-      //                 Icon(Icons.favorite_border, color: Colors.red),
-      //                 Text(data['likes'].toString()),
-      //               ],
-      //             ),
-      //           ],
-      //         );
-      //       },
-      //     );
-      //   },
-      // ),
     );
   }
 }

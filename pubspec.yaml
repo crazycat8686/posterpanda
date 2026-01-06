@@ -97,6 +97,11 @@ flutter:
         - asset: fonts/Lexend-SemiBold.ttf
           weight: 600
 
+    - family: Bau
+      fonts:
+        - asset: fonts/Baumans-Regular.ttf
+        
+
   
   #
   # For details regarding fonts from package dependencies,
