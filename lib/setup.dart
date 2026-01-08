@@ -1,6 +1,9 @@
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'display.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/enums.dart';
 
 class Setup extends StatefulWidget {
   const Setup({super.key});
@@ -12,9 +15,38 @@ class Setup extends StatefulWidget {
 class _SetupState extends State<Setup> {
   final TextEditingController c1 = TextEditingController();
   bool big = false;
+  String? stat;
   void set(String val) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
     await pref.setString('name', val);
+  }
+
+  Future<void> sign() async {
+    final client = Client()
+        .setEndpoint('https://nyc.cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject('695f675200002b911515'); // Your project ID
+
+    final account = Account(client);
+    await account.deleteSession(sessionId: "current");
+
+    // Go to OAuth provider login page
+    final res = await account.createOAuth2Session(
+      provider: OAuthProvider.google,
+    );
+    final user = await account.get();
+    print(user.toMap());
+    setState(() {
+      stat = user.name;
+    });
+  }
+
+  Future<void> del() async {
+    final client = Client()
+        .setEndpoint('https://nyc.cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject('695f675200002b911515'); // Your project ID
+
+    final account = Account(client);
+    await account.deleteSession(sessionId: "current");
   }
 
   @override
@@ -29,8 +61,9 @@ class _SetupState extends State<Setup> {
             children: [
               Text(
                 // textAlign: TextAlign.center,
-                "Welcome pls do this",
+                "Welcome, Sign-up please!!",
                 style: TextStyle(
+                  fontFamily: 'Bau',
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
                   // color: const Color.fromARGB(123, 255, 255, 255),
@@ -78,32 +111,15 @@ class _SetupState extends State<Setup> {
                       strokeAlign: BorderSide.strokeAlignInside,
                     ),
                   ),
-                  hintText: 'JOhn DIck',
+                  hintText: 'John Sick',
                   labelText: 'Enter yout name pls',
                   prefixIcon: Icon(Icons.person_2),
                 ),
               ),
-              // Center(
-              //   child: Row(
-              //     crossAxisAlignment: CrossAxisAlignment.center,
-              //     children: [
-              //       AnimatedContainer(
-              //         curve: Curves.bounceInOut,
-              //         duration: Duration(microseconds: 3000),
-              //         width: big ? 10 : 20,
-              //         height: big ? 20 : 10,
-              //         color: Colors.red,
-              //       ),
-              //       Spacer(),
-              //       AnimatedContainer(
-              //         duration: Duration(microseconds: 3000),
-              //         width: big ? 1 : 10,
-              //         height: big ? 1 : 4,
-              //         color: Colors.red,
-              //       ),
-              //     ],
-              //   ),
-              // ),
+              stat == null ? Text("aut") : Text(stat!),
+              ElevatedButton.icon(onPressed: sign, label: Text("GAuth")),
+
+              ElevatedButton.icon(onPressed: del, label: Text("del")),
             ],
           ),
         ),

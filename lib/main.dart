@@ -2,6 +2,7 @@ import 'package:posterpanda/upload.dart';
 import 'display.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'setup.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,7 +59,13 @@ class _lollState extends State<loll> {
               ),
               child: Text("upload"),
             ),
-            // ElevatedButton(
+            ElevatedButton(
+              onPressed: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => Setup()),
+              ),
+              child: Text("Reset"),
+            ), // ElevatedButton(
             //   onPressed: () => Navigator.pushReplacement(
             //     context,
             //     MaterialPageRoute(builder: (_) => Setup()),
